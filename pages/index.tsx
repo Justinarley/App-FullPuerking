@@ -8,7 +8,7 @@ export default function Home() {
   useEffect(() => {
     const token = Cookies.get('token')
     if (token) {
-      router.replace('/principal')
+      router.replace('/cliente')
     } else {
       router.replace('/login')
     }

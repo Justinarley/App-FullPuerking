@@ -2,41 +2,45 @@ import Image from "next/image";
 import Cookies from "js-cookie";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import authService from "../services/authService";  // Importar authService
+import { Eye, EyeOff } from "lucide-react";
+import authService from "../services/authService"; // Importar authService
 
 export default function Login() {
   const router = useRouter();
   const [ciruc, setCiruc] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       const payload = {
-        email: username,  // Asegúrate de pasar el 'email'
+        email: username, // Asegúrate de pasar el 'email'
         contrasena: password,
         rucCI: ciruc,
       };
-  
+
       // Llama al servicio de login
       const response = await authService.login(payload);
-  
-      console.log("Datos de la respuesta:", response);
-      const { accessToken, role } = response;  // Extrae correctamente el role
 
-      console.log("Acceso recibido:", accessToken);  // Verifica que el accessToken esté presente
+      console.log("Datos de la respuesta:", response);
+      const { accessToken, role } = response; // Extrae correctamente el role
+
+      console.log("Acceso recibido:", accessToken); // Verifica que el accessToken esté presente
       console.log("Rol recibido:", role);
-  
+
       if (role) {
         Cookies.set("token", accessToken, { expires: 1, path: "/" });
         console.log("Rol recibido:", role);
-  
-        if (role === "admin") {
-          router.push("/admin");
+
+        if (role === "superadmin") {
+          await router.push("/superadmin/home");
+        } else if (role === "admin") {
+          await router.push("/admin");
         } else {
-          router.push("/principal");
+          await router.push("/cliente");
         }
       }
     } catch (error) {
@@ -77,7 +81,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-primary">Usuario:</label>
+              <label className="block text-primary">Usuario: (Correo)</label>
               <input
                 type="text"
                 placeholder="Ingrese su usuario"
@@ -87,26 +91,38 @@ export default function Login() {
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label className="block text-primary">Contraseña:</label>
-              <input
-                type="password"
-                placeholder="Ingrese su contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border border-gray-500 rounded-md bg-darkInput text-white focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Ingrese su contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-2 border border-gray-500 rounded-md bg-darkInput text-white focus:outline-none focus:ring-2 focus:ring-primary pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <div className="flex justify-between text-sm mt-2">
-              <button 
+              <button
                 type="button"
                 className="text-primary underline hover:text-opacity-80"
-                onClick={() => router.push("/register")}
+                onClick={() => router.replace("/register")}
               >
                 Registrarse
               </button>
-              <button type="button" className="text-primary underline hover:text-opacity-80">
+              <button
+                type="button"
+                className="text-primary underline hover:text-opacity-80"
+              >
                 Olvidé mi contraseña
               </button>
             </div>
@@ -124,12 +140,6 @@ export default function Login() {
       {/* Footer */}
       <div className="flex justify-between w-full max-w-md mt-6 text-primary">
         <span>JUSTIN Y ERICK</span>
-        <button
-          onClick={() => router.push("/admin")}
-          className="hover:underline"
-        >
-          Admin →
-        </button>
       </div>
     </div>
   );

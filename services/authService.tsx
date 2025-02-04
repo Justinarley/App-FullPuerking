@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 const authService = {
   // Registro de usuario
-  register: async (data: { rucCI: string; email: string; contrasena: string; role: string }) => {
+  register: async (data: { rucCI: string; email: string; contrasena: string }) => {
     try {
       const response = await axios.post(`${API_URL}/users/register`, data);
       console.log("Respuesta del registro:", response.data);

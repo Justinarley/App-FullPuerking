@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import authService from "../services/authService";  // Asegúrate de importar el servicio
+import { Eye, EyeOff } from "lucide-react";
+import authService from "../services/authService"; // Asegúrate de importar el servicio
 
 export default function Register() {
   const router = useRouter();
@@ -9,12 +10,15 @@ export default function Register() {
   const [rucCI, setRucCI] = useState("");
   const [email, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [contrasenaValida, setContrasenaValida] = useState({
     minLength: false,
     hasUpperCase: false,
     hasSpecialChar: false,
   });
-  const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: string; text: string } | null>(
+    null
+  );
 
   const validatePassword = (password: string) => {
     setContrasenaValida({
@@ -31,7 +35,6 @@ export default function Register() {
       rucCI,
       email,
       contrasena,
-      role: "cliente",
     };
 
     try {
@@ -41,7 +44,10 @@ export default function Register() {
       setMessage({ type: "success", text: "Usuario creado exitosamente" });
       setTimeout(() => router.push("/login"), 2000);
     } catch {
-      setMessage({ type: "error", text: "Hubo un error al registrar el usuario. Inténtalo de nuevo." });
+      setMessage({
+        type: "error",
+        text: "Hubo un error al registrar el usuario. Inténtalo de nuevo.",
+      });
     }
   };
 
@@ -105,26 +111,60 @@ export default function Register() {
 
             <div>
               <label className="block text-primary">Contraseña:</label>
-              <input
-                type="password"
-                value={contrasena}
-                onChange={(e) => {
-                  setContrasena(e.target.value);
-                  validatePassword(e.target.value);
-                }}
-                placeholder="Ingrese su contraseña"
-                className="w-full p-2 border border-gray-500 rounded-md bg-darkInput text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={contrasena}
+                  onChange={(e) => {
+                    setContrasena(e.target.value);
+                    validatePassword(e.target.value);
+                  }}
+                  placeholder="Ingrese su contraseña"
+                  className="w-full p-2 border border-gray-500 rounded-md bg-darkInput text-white focus:outline-none focus:ring-2 focus:ring-primary pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {/* Reglas de validación */}
               <ul className="text-sm mt-2 text-gray-400">
-                <li className={`${contrasenaValida.minLength ? "text-green-500" : "text-red-500"}`}>
-                  {contrasenaValida.minLength ? "✔ Mínimo 8 caracteres" : "❌ Mínimo 8 caracteres"}
+                <li
+                  className={`${
+                    contrasenaValida.minLength
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {contrasenaValida.minLength
+                    ? "✔ Mínimo 8 caracteres"
+                    : "❌ Mínimo 8 caracteres"}
                 </li>
-                <li className={`${contrasenaValida.hasUpperCase ? "text-green-500" : "text-red-500"}`}>
-                  {contrasenaValida.hasUpperCase ? "✔ Al menos una mayúscula" : "❌ Al menos un a mayúscula"}
+                <li
+                  className={`${
+                    contrasenaValida.hasUpperCase
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {contrasenaValida.hasUpperCase
+                    ? "✔ Al menos una mayúscula"
+                    : "❌ Al menos una mayúscula"}
                 </li>
-                <li className={`${contrasenaValida.hasSpecialChar ? "text-green-500" : "text-red-500"}`}>
-                  {contrasenaValida.hasSpecialChar ? "✔ Al menos un carácter especial" : "❌ Al menos un carácter especial"}
+                <li
+                  className={`${
+                    contrasenaValida.hasSpecialChar
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {contrasenaValida.hasSpecialChar
+                    ? "✔ Al menos un carácter especial"
+                    : "❌ Al menos un carácter especial"}
                 </li>
               </ul>
             </div>
